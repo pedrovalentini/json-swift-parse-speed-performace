@@ -1,0 +1,28 @@
+PODS:
+  - Argo (2.3.0)
+  - Curry (2.0.0)
+  - EVReflection (2.22.0)
+  - ObjectMapper (1.1.5)
+  - Sugar (1.0.10)
+  - Tailor (0.4.5):
+    - Sugar
+  - Unbox (1.3.1)
+
+DEPENDENCIES:
+  - Argo
+  - Curry
+  - EVReflection
+  - ObjectMapper
+  - Tailor
+  - Unbox
+
+SPEC CHECKSUMS:
+  Argo: 3dbecf4204b1a3cdd1df88ebd5e23d01b652d34b
+  Curry: 5c5c5887d80fa22ca2133c7ea4d48c4d02283c0a
+  EVReflection: a477e3e8387c720aba2838b0c8efdf62ee15eadb
+  ObjectMapper: 528b1a6677a6acac7747edd508576983e76a9148
+  Sugar: 22e3e4e6b44d5daef87a025996363fc60626b90b
+  Tailor: d1d5bce9d81e953c3d7b3f3fd6d084337feeb7a5
+  Unbox: b6e468b47b5d941b197c1ea53e9c179528b454ed
+
+COCOAPODS: 0.39.0
