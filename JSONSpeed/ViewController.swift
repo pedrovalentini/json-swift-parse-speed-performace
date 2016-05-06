@@ -11,54 +11,73 @@ import Unbox
 import ObjectMapper
 import Argo
 import Curry
-
+import EVReflection
 
 class ViewController: UIViewController {
 
-    static func readFile(name: String) -> NSDictionary? {
+
+    func readFile(name: String) -> NSData? {
         print("readFile")
         let bundle = NSBundle.mainBundle()
-        let path = bundle.pathForResource(name, ofType: "json")
-        let data = NSData(contentsOfFile: path!)
+        if let path = bundle.pathForResource(name, ofType: "json") {
+            return NSData(contentsOfFile: path)
+        }
+        return nil
+    }
+
+    func fileToDict(data: NSData?)  -> NSDictionary? {
+        if data == nil {
+            return nil
+        }
         do {
             let dict = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
             print(dict)
             return dict as? NSDictionary
-        }catch {}
+        } catch {}
         return nil
     }
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
-        print("START")
-        let start = NSDate()
-        let dict = ViewController.readFile("speed")
-        
-        
-        let speed = SpeedReflection(dictionary: dict!)
-        
+
+        evReflectionTest()
+        evReflectionTest()
+
 //        let speed = Mapper<SpeedObjectMapper>().map(dict)!
 //        let speed = SpeedObjectMapper(JSON: dict as! [String: AnyObject])!
-        
+
 //        let speed: SpeedUnbox? = Unbox(dict as! [String: AnyObject])!
-        
+
 //        let dict2 = dict as? [String: AnyObject]
 //        let speed = SpeedTailor(dict)
-        
+
 //        let speed: SpeedArgo? = decode(dict!)
-        
-        
+
+
 //        print(speed!.list.first!.name, speed!.name)
-        print(speed.list!.first!.name, speed.name)
 //        print(speed) // CAN ADD TIME TO PARSE TIME...
-        
-        print("FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
-        
+
+
+
     }
-    
+
+    func evReflectionTest() {
+        guard let data: NSData = readFile("speed") else {
+            print("COULD NOT READ FILE")
+            return
+        }
+        let json = String(data: data, encoding: NSUTF8StringEncoding)
+
+        print("EVReflection: START PARSE")
+        let start = NSDate()
+
+        let speed = SpeedReflection(json: json)
+
+        print(speed.list!.first!.name, speed.name)
+        print("EVReflection: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
+    }
+
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -66,4 +85,3 @@ class ViewController: UIViewController {
 
 
 }
-
