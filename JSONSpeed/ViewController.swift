@@ -31,52 +31,144 @@ class ViewController: UIViewController {
         }
         do {
             let dict = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
-            print(dict)
             return dict as? NSDictionary
         } catch {}
         return nil
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+
+        print("\n\n----- Dummy initial tests ---\n\n\n")
+        tailorTest()
+        unboxTest()
+        objectMapperTest()
+        argoTest()
+        evReflectionTest()
+
+        print("\n\n----- Start actual test ---\n\n\n")
+
+        tailorTest()
+        tailorTest()
+
+        unboxTest()
+        unboxTest()
+
+        objectMapperTest()
+        objectMapperTest()
+
+        argoTest()
+        argoTest()
 
         evReflectionTest()
         evReflectionTest()
-
-//        let speed = Mapper<SpeedObjectMapper>().map(dict)!
-//        let speed = SpeedObjectMapper(JSON: dict as! [String: AnyObject])!
-
-//        let speed: SpeedUnbox? = Unbox(dict as! [String: AnyObject])!
-
-//        let dict2 = dict as? [String: AnyObject]
-//        let speed = SpeedTailor(dict)
-
-//        let speed: SpeedArgo? = decode(dict!)
-
-
-//        print(speed!.list.first!.name, speed!.name)
-//        print(speed) // CAN ADD TIME TO PARSE TIME...
-
-
 
     }
 
+    func argoTest() {
+        // Prepare for test
+        guard let data: NSData = readFile("speed") else {
+            print("COULD NOT READ FILE")
+            return
+        }
+
+        print("SpeedArgo: START PARSE")
+        let start = NSDate()
+
+        // Test this
+        let dict = fileToDict(data)
+        let speed: SpeedArgo = decode(dict!)!
+
+        // Show results
+        print(speed.list.first!.name, speed.name)
+        print("SpeedArgo: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
+    }
+
+    func tailorTest() {
+        // Prepare for test
+        guard let data: NSData = readFile("speed") else {
+            print("COULD NOT READ FILE")
+            return
+        }
+
+        print("Tailor: START PARSE")
+        let start = NSDate()
+
+        // Test this
+        let dict = fileToDict(data) as! [String : AnyObject]
+        let speed = SpeedTailor(dict)
+
+        // Show results
+        print("CRASH!?")
+        //print(speed.list!.first!.name, speed.name)
+        //print("Tailor: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
+    }
+
+    func unboxTest() {
+        // Prepare for test
+        guard let data: NSData = readFile("speed") else {
+            print("COULD NOT READ FILE")
+            return
+        }
+
+        print("UNBOX: START PARSE")
+        let start = NSDate()
+
+        // Test this
+        if let dict = fileToDict(data) as? UnboxableDictionary {
+            do {
+                let speed: SpeedUnbox = try Unbox(dict)
+
+                // Show results
+                print(speed.list!.first!.name, speed.name)
+                print("UNBOX: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
+            } catch _ {
+                print("COULD NOT UNBOX")
+            }
+        } else {
+            print("DICTIONARY IS NOT UNBOXABLE")
+        }
+    }
+
+    func objectMapperTest() {
+        // Prepare for test
+        guard let data: NSData = readFile("speed") else {
+            print("COULD NOT READ FILE")
+            return
+        }
+
+        print("OBJECTMAPPER2: START PARSE")
+        let start = NSDate()
+
+        // Test this
+        let dict = fileToDict(data)
+        let speed = SpeedObjectMapper(JSON: dict as! [String: AnyObject])!
+
+        // Show results
+        print(speed.list!.first!.name, speed.name)
+        print("OBJECTMAPPER2: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
+    }
+
+
     func evReflectionTest() {
+        // Prepare for test
         guard let data: NSData = readFile("speed") else {
             print("COULD NOT READ FILE")
             return
         }
         let json = String(data: data, encoding: NSUTF8StringEncoding)
 
-        print("EVReflection: START PARSE")
+        print("EVREFLECTION: START PARSE")
         let start = NSDate()
 
+        // Test this
         let speed = SpeedReflection(json: json)
 
+        // Show results
         print(speed.list!.first!.name, speed.name)
-        print("EVReflection: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
+        print("EVREFLECTION: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
     }
-
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
