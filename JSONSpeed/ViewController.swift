@@ -36,6 +36,20 @@ class ViewController: UIViewController {
         return nil
     }
 
+    func doTest(type: String, test: (data: NSData) -> ()) {
+        // Prepare for test
+        guard let data: NSData = readFile("speed") else {
+            print("ERROR: COULD NOT READ FILE")
+            return
+        }
+
+        print("\(type): start parse")
+        let start = NSDate()
+
+        test(data: data)
+
+        print("\(type): finish parse in seconds \(NSDate().timeIntervalSinceDate(start))")
+    }
 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
@@ -67,113 +81,52 @@ class ViewController: UIViewController {
     }
 
     func argoTest() {
-        // Prepare for test
-        guard let data: NSData = readFile("speed") else {
-            print("COULD NOT READ FILE")
-            return
+        doTest("SpeedArgo") { data in
+            let dict = self.fileToDict(data)
+            let speed: SpeedArgo = decode(dict!)!
+            print(speed.list.first!.name, speed.name)
         }
-
-        print("SpeedArgo: START PARSE")
-        let start = NSDate()
-
-        // Test this
-        let dict = fileToDict(data)
-        let speed: SpeedArgo = decode(dict!)!
-
-        // Show results
-        print(speed.list.first!.name, speed.name)
-        print("SpeedArgo: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
     }
 
-    func tailorTest() {
-        // Prepare for test
-        guard let data: NSData = readFile("speed") else {
-            print("COULD NOT READ FILE")
-            return
+
+    func objectMapperTest() {
+        doTest("ObjectMapper") { data in
+            let dict = self.fileToDict(data)
+            let speed = SpeedObjectMapper(JSON: dict as! [String: AnyObject])!
+            print(speed.list!.first!.name, speed.name)
         }
+    }
 
-        print("Tailor: START PARSE")
-        let start = NSDate()
-
-        // Test this
-        let dict = fileToDict(data) as! [String : AnyObject]
-        let speed = SpeedTailor(dict)
-
-        // Show results
-        print("CRASH!?")
-        //print(speed.list!.first!.name, speed.name)
-        //print("Tailor: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
+    func evReflectionTest() {
+        doTest("EVReflection") { data in
+            let json = String(data: data, encoding: NSUTF8StringEncoding)
+            let speed = SpeedReflection(json: json)
+            print(speed.list!.first!.name, speed.name)
+        }
     }
 
     func unboxTest() {
-        // Prepare for test
-        guard let data: NSData = readFile("speed") else {
-            print("COULD NOT READ FILE")
-            return
-        }
-
-        print("UNBOX: START PARSE")
-        let start = NSDate()
-
-        // Test this
-        if let dict = fileToDict(data) as? UnboxableDictionary {
-            do {
-                let speed: SpeedUnbox = try Unbox(dict)
-
-                // Show results
-                print(speed.list!.first!.name, speed.name)
-                print("UNBOX: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
-            } catch _ {
-                print("COULD NOT UNBOX")
+        doTest("Unbox") { data in
+            if let dict = self.fileToDict(data) as? UnboxableDictionary {
+                do {
+                    let speed: SpeedUnbox = try Unbox(dict)
+                    print(speed.list!.first!.name, speed.name)
+                } catch _ {
+                    print("ERROR: COULD NOT UNBOX")
+                }
+            } else {
+                print("ERROR: DICTIONARY IS NOT UNBOXABLE")
             }
-        } else {
-            print("DICTIONARY IS NOT UNBOXABLE")
         }
     }
 
-    func objectMapperTest() {
-        // Prepare for test
-        guard let data: NSData = readFile("speed") else {
-            print("COULD NOT READ FILE")
-            return
+    func tailorTest() {
+        doTest("EVReflection") { data in
+            let dict = self.fileToDict(data) as! [String : AnyObject]
+            let speed = SpeedTailor(dict)
+            print("CRASH!?")
+            //print(speed.list!.first!.name, speed.name)
         }
-
-        print("OBJECTMAPPER2: START PARSE")
-        let start = NSDate()
-
-        // Test this
-        let dict = fileToDict(data)
-        let speed = SpeedObjectMapper(JSON: dict as! [String: AnyObject])!
-
-        // Show results
-        print(speed.list!.first!.name, speed.name)
-        print("OBJECTMAPPER2: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
     }
-
-
-    func evReflectionTest() {
-        // Prepare for test
-        guard let data: NSData = readFile("speed") else {
-            print("COULD NOT READ FILE")
-            return
-        }
-        let json = String(data: data, encoding: NSUTF8StringEncoding)
-
-        print("EVREFLECTION: START PARSE")
-        let start = NSDate()
-
-        // Test this
-        let speed = SpeedReflection(json: json)
-
-        // Show results
-        print(speed.list!.first!.name, speed.name)
-        print("EVREFLECTION: FINISH PARSE IN SECONDS \(NSDate().timeIntervalSinceDate(start))")
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
 
 }
